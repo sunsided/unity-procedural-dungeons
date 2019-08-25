@@ -44,27 +44,17 @@ public class DungeonManager : MonoBehaviour
 
     private void RandomWalker()
     {
+        // The directions the random walk can move to.
+        var directions = new[] { Vector3.up, Vector3.right, Vector3.down, Vector3.left };
+
         // Starting point of the PLAYER (... is also the random walker)
         var curPos = Vector3.zero;
 
         _floorList.Add(curPos);
         while (_floorList.Count < totalFloorCount)
         {
-            switch (Random.Range(1, 5))
-            {
-                case 1:
-                    curPos += Vector3.up;
-                    break;
-                case 2:
-                    curPos += Vector3.right;
-                    break;
-                case 3:
-                    curPos += Vector3.down;
-                    break;
-                case 4:
-                    curPos += Vector3.left;
-                    break;
-            }
+            var delta = directions[Random.Range(0, directions.Length)];
+            curPos += delta;
 
             // TODO: Should we use a hashset?
             if (_floorList.Contains(curPos)) continue;
