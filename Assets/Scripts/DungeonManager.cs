@@ -7,7 +7,12 @@ using Random = UnityEngine.Random;
 
 public class DungeonManager : MonoBehaviour
 {
-    public int totalFloorCount;
+    [Range(50, 2000)]
+    public int totalFloorCount = 500;
+
+    [Range(0, 100)]
+    public int itemSpawnProbability = 5;
+
     public GameObject floorPrefab;
     public GameObject wallPrefab;
     public GameObject tilePrefab;
@@ -120,6 +125,7 @@ public class DungeonManager : MonoBehaviour
                     var hitFloorTransformPos = hitFloor.transform.position;
 
                     // Ensure we're not placing something onto the exit door.
+                    // ReSharper disable once PossibleInvalidOperationException
                     var positionIsExitDoor = Vector2.Equals(hitFloorTransformPos, _doorPos.Value);
                     if (!positionIsExitDoor)
                     {
@@ -128,23 +134,31 @@ public class DungeonManager : MonoBehaviour
                         var hitBottom = Physics2D.OverlapBox(new Vector2(x, y - 1), hitSize, 0, _wallMask);
                         var hitLeft = Physics2D.OverlapBox(new Vector2(x - 1, y), hitSize, 0, _wallMask);
 
-                        var hasSurroundingWall = hitTop || hitRight || hitBottom || hitLeft;
-                        var isHorizontalTunnel = hitTop && hitBottom;
-                        var isVerticalTunnel = hitLeft && hitRight;
-                        var isTunnel = isHorizontalTunnel || isVerticalTunnel;
-                        isTunnel = isTunnel;
-
-                        if (hasSurroundingWall /* && !isTunnel */)
-                        {
-                            var itemIndex = Random.Range(0, randomItems.Length);
-                            var itemPrefab = randomItems[itemIndex];
-
-                            var goItem = Instantiate(itemPrefab, hitFloorTransformPos, Quaternion.identity, hitFloor.transform);
-                            goItem.name = itemPrefab.name + $" for ({x}, {y})";
-                        }
+                        CreateRandomItem(hitFloor, hitTop, hitRight, hitBottom, hitLeft);
                     }
                 }
             }
         }
+    }
+
+    private void CreateRandomItem([NotNull] Collider2D hitFloor,
+        [NotNull] Collider2D hitTop, [NotNull] Collider2D hitRight, [NotNull] Collider2D hitBottom,
+        [NotNull] Collider2D hitLeft)
+    {
+        var hasSurroundingWall = hitTop || hitRight || hitBottom || hitLeft;
+        var isHorizontalTunnel = hitTop && hitBottom;
+        var isVerticalTunnel = hitLeft && hitRight;
+        var isTunnel = isHorizontalTunnel || isVerticalTunnel;
+        if (!hasSurroundingWall || isTunnel) return;
+
+        var roll = Random.Range(1, 101);
+        if (roll > itemSpawnProbability) return;
+
+        var itemIndex = Random.Range(0, randomItems.Length);
+        var itemPrefab = randomItems[itemIndex];
+
+        var floorTransform = hitFloor.transform;
+        var goItem = Instantiate(itemPrefab, floorTransform.position, Quaternion.identity, floorTransform);
+        goItem.name = itemPrefab.name;
     }
 }
