@@ -164,12 +164,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e03432433cd8f839bca9be1ad979cfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalFloorCount: 500
+  totalFloorCount: 50
   floorPrefab: {fileID: 4514925030624558333, guid: f4b491aa8eeeb41f4b1f181895829bf1,
     type: 3}
   wallPrefab: {fileID: 355985668678716677, guid: bcca8e81274ebdb05b3993b94cbbde5c,
     type: 3}
   tilePrefab: {fileID: 8499686360174531855, guid: 19e3a3867dec3a58eb1e5b62f0955f40,
+    type: 3}
+  exitPrefab: {fileID: 191300661906355976, guid: 1c4ee5d477c7057bca1c84bcef14c9d1,
     type: 3}
   minX: 0
   maxX: 0

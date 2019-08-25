@@ -1,7 +1,6 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
@@ -12,6 +11,7 @@ public class DungeonManager : MonoBehaviour
     public GameObject floorPrefab;
     public GameObject wallPrefab;
     public GameObject tilePrefab;
+    public GameObject exitPrefab;
 
     [HideInInspector]
     public float minX;
@@ -66,5 +66,29 @@ public class DungeonManager : MonoBehaviour
             var goTile = Instantiate(tilePrefab, _floorList[i], Quaternion.identity, transform);
             goTile.name = tilePrefab.name;
         }
+
+        // Wait for the awakes and starts to be called.
+        StartCoroutine(DelayProgress());
+    }
+
+    private IEnumerator DelayProgress()
+    {
+        // Wait for all tile spawners to be created before continuing to place level elements.
+        while (FindObjectsOfType<TileSpawner>().Length > 0)
+        {
+            yield return null;
+        }
+
+        CreateExitDoor();
+    }
+
+    private void CreateExitDoor()
+    {
+        // We're assuming that the random walker ended up somewhere distant from the player.
+        // This is the location were we place our exit dor.
+        var doorPos = _floorList[_floorList.Count - 1];
+
+        var goDoor = Instantiate(exitPrefab, doorPos, Quaternion.identity, transform);
+        goDoor.name = exitPrefab.name;
     }
 }
