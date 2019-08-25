@@ -16,6 +16,8 @@ public class DungeonManager : MonoBehaviour
     [Range(0, 100)]
     public int enemySpawnProbability = 5;
 
+    public bool roundedEdges;
+
     public GameObject floorPrefab;
     public GameObject wallPrefab;
     public GameObject tilePrefab;
@@ -23,6 +25,7 @@ public class DungeonManager : MonoBehaviour
 
     public GameObject[] randomItems;
     public GameObject[] randomEnemies;
+    public GameObject[] wallRoundedEdges;
 
     [HideInInspector]
     public float minX;
@@ -39,6 +42,7 @@ public class DungeonManager : MonoBehaviour
     [NotNull]
     private readonly List<Vector3> _floorList = new List<Vector3>();
 
+    private readonly Vector2 _hitSize = Vector2.one * 0.8f;
     private LayerMask _floorMask;
     private LayerMask _wallMask;
     private Vector3? _doorPos;
@@ -113,7 +117,6 @@ public class DungeonManager : MonoBehaviour
     private void CreateRandomItems()
     {
         Debug.Assert(_doorPos.HasValue, "Exit door must be instantiated before placing items.");
-        var hitSize = Vector2.one * 0.8f;
 
         const int offset = 2; // TODO: Why though?
         for (var x = (int) minX - offset; x <= (int) maxX + offset; ++x)
@@ -123,23 +126,52 @@ public class DungeonManager : MonoBehaviour
                 // Note that the angle (of 0) is hugely important. If unspecified, all the
                 // areas surrounding a floor tile (i.e., walls and other open floors) will be triggering
                 // collisions as well.
-                var hitFloor = Physics2D.OverlapBox(new Vector2(x, y), hitSize, 0, _floorMask);
-                if (!hitFloor) continue;
+                var hitFloor = Physics2D.OverlapBox(new Vector2(x, y), _hitSize, 0, _floorMask);
+                if (hitFloor)
+                {
+                    // Ensure we're not placing something onto the exit door.
+                    // ReSharper disable once PossibleInvalidOperationException
+                    var positionIsExitDoor = Vector2.Equals(hitFloor.transform.position, _doorPos.Value);
+                    if (positionIsExitDoor) continue;
 
-                // Ensure we're not placing something onto the exit door.
-                // ReSharper disable once PossibleInvalidOperationException
-                var positionIsExitDoor = Vector2.Equals(hitFloor.transform.position, _doorPos.Value);
-                if (positionIsExitDoor) continue;
+                    var hitTop = Physics2D.OverlapBox(new Vector2(x, y + 1), _hitSize, 0, _wallMask);
+                    var hitRight = Physics2D.OverlapBox(new Vector2(x + 1, y), _hitSize, 0, _wallMask);
+                    var hitBottom = Physics2D.OverlapBox(new Vector2(x, y - 1), _hitSize, 0, _wallMask);
+                    var hitLeft = Physics2D.OverlapBox(new Vector2(x - 1, y), _hitSize, 0, _wallMask);
 
-                var hitTop = Physics2D.OverlapBox(new Vector2(x, y + 1), hitSize, 0, _wallMask);
-                var hitRight = Physics2D.OverlapBox(new Vector2(x + 1, y), hitSize, 0, _wallMask);
-                var hitBottom = Physics2D.OverlapBox(new Vector2(x, y - 1), hitSize, 0, _wallMask);
-                var hitLeft = Physics2D.OverlapBox(new Vector2(x - 1, y), hitSize, 0, _wallMask);
+                    CreateRandomItem(hitFloor, hitTop, hitRight, hitBottom, hitLeft);
+                    CreateRandomEnemy(hitFloor, hitTop, hitRight, hitBottom, hitLeft);
+                }
 
-                CreateRandomItem(hitFloor, hitTop, hitRight, hitBottom, hitLeft);
-                CreateRandomEnemy(hitFloor, hitTop, hitRight, hitBottom, hitLeft);
+                RoundedEdges(x, y);
             }
         }
+    }
+
+    private void RoundedEdges(int x, int y)
+    {
+        if (!roundedEdges) return;
+
+        var position = new Vector2(x, y);
+        var hitWall = Physics2D.OverlapBox(position, _hitSize, 0, _wallMask);
+        if (!hitWall) return;
+
+        var hitTop = Physics2D.OverlapBox(new Vector2(x, y + 1), _hitSize, 0, _wallMask);
+        var hitRight = Physics2D.OverlapBox(new Vector2(x + 1, y), _hitSize, 0, _wallMask);
+        var hitBottom = Physics2D.OverlapBox(new Vector2(x, y - 1), _hitSize, 0, _wallMask);
+        var hitLeft = Physics2D.OverlapBox(new Vector2(x - 1, y), _hitSize, 0, _wallMask);
+
+        var bitValue = 0;
+        bitValue += hitTop ? 0 : 1;
+        bitValue += hitRight ? 0 : 2;
+        bitValue += hitBottom ? 0 : 4;
+        bitValue += hitLeft ? 0 : 8;
+
+        if (bitValue == 0) return;
+
+        var edgePrefab = wallRoundedEdges[bitValue];
+        var goItem = Instantiate(edgePrefab, position, Quaternion.identity, hitWall.transform);
+        goItem.name = edgePrefab.name;
     }
 
     private void CreateRandomItem([NotNull] Collider2D hitFloor,

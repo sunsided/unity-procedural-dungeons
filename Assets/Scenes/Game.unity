@@ -167,6 +167,7 @@ MonoBehaviour:
   totalFloorCount: 500
   itemSpawnProbability: 10
   enemySpawnProbability: 10
+  roundedEdges: 1
   floorPrefab: {fileID: 4514925030624558333, guid: f4b491aa8eeeb41f4b1f181895829bf1,
     type: 3}
   wallPrefab: {fileID: 355985668678716677, guid: bcca8e81274ebdb05b3993b94cbbde5c,
@@ -186,6 +187,23 @@ MonoBehaviour:
   - {fileID: 7389784770100088109, guid: 2cbd4124376e864beb8b0e82dda342f2, type: 3}
   - {fileID: 2193353400922159813, guid: ccbfdb11433de8c14a339fb58a4ddd2e, type: 3}
   - {fileID: 853295437519236526, guid: c63c4cbc30b72b0b696901287471a36b, type: 3}
+  wallRoundedEdges:
+  - {fileID: 56295710450880651, guid: a4527e3836fac43048bde0118a87b037, type: 3}
+  - {fileID: 7888775862247431992, guid: 33d01a36a0326da6babb9d7f699af88e, type: 3}
+  - {fileID: 3253511571748021597, guid: 3315167a73703c895a022122ca815c42, type: 3}
+  - {fileID: 801677988019259861, guid: f811b236bbef3ceb5b3f0e91be8fe20f, type: 3}
+  - {fileID: 4497954316926719343, guid: 892586065806bd50a8b3dbba0b0b8caa, type: 3}
+  - {fileID: 502606101825244420, guid: f13f4a64c1ef155d0a6f2040723e0287, type: 3}
+  - {fileID: 1662012753486552759, guid: e0242cdd83a8617a78e4197b857da024, type: 3}
+  - {fileID: 3146828284631345724, guid: 1bd4e4ae5b70c0497895045a411402de, type: 3}
+  - {fileID: 2015342432750221360, guid: e0651c1ba6c442607b09c1037257485c, type: 3}
+  - {fileID: 7290173597987974925, guid: cd7d31f5e86e6163489091dc2eddd740, type: 3}
+  - {fileID: 5585876629474461368, guid: 5d5990f356daa03ceb1ce8abb6a34b8d, type: 3}
+  - {fileID: 6351262694034833085, guid: baa35f843cbc35d24864d11c0355d060, type: 3}
+  - {fileID: 6469243058042122431, guid: 6b6536f903600b16b87e0cfa01d15bcf, type: 3}
+  - {fileID: 2778999152139377518, guid: 9765406128772c33e9bfd1eff45cd2a2, type: 3}
+  - {fileID: 1247938255959545874, guid: e5a61c1af2d3dccfeab80b3bfa740c61, type: 3}
+  - {fileID: 840328909662834443, guid: 5c8eef2e7f1aec6d1a4c4d047436676a, type: 3}
   minX: 0
   maxX: 0
   minY: 0
