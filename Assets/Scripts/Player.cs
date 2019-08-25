@@ -22,6 +22,11 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        Move();
+    }
+
+    private void Move()
+    {
         // Using Math.Sign() rather than Mathf.Sign() because we want 0 to be mapped to a 0 sign.
         // Note that we're also using GetAxisRaw instead of GetAxis.
         var horizontal = Math.Sign(Input.GetAxisRaw("Horizontal"));
@@ -29,35 +34,33 @@ public class Player : MonoBehaviour
 
         var xPressed = Mathf.Abs(horizontal) > 0;
         var yPressed = Mathf.Abs(vertical) > 0;
-        if (xPressed || yPressed)
+        if (!xPressed && !yPressed) return;
+
+        if (xPressed)
         {
-            if (xPressed)
-            {
-                _gfx.localScale = new Vector2(_flipX * horizontal, _gfx.localScale.y);
-            }
+            _gfx.localScale = new Vector2(_flipX * horizontal, _gfx.localScale.y);
+        }
 
-            if (!_isMoving)
-            {
-                // Set new target position
-                var pos = transform.position;
-                if (xPressed)
-                {
-                    _targetPos = new Vector2(pos.x + horizontal, pos.y);
-                }
-                else
-                {
-                    Debug.Assert(yPressed, "yPressed == true");
-                    _targetPos = new Vector2(pos.x, pos.y + vertical);
-                }
+        if (_isMoving) return;
 
-                // Check for collisions
-                var hitSize = Vector2.one * 0.8f;
-                var hit = Physics2D.OverlapBox(_targetPos, hitSize, 0, _obstacleMask);
-                if (!hit)
-                {
-                    StartCoroutine(SmoothMove());
-                }
-            }
+        // Set new target position
+        var pos = transform.position;
+        if (xPressed)
+        {
+            _targetPos = new Vector2(pos.x + horizontal, pos.y);
+        }
+        else
+        {
+            Debug.Assert(yPressed, "yPressed == true");
+            _targetPos = new Vector2(pos.x, pos.y + vertical);
+        }
+
+        // Check for collisions
+        var hitSize = Vector2.one * 0.8f;
+        var hit = Physics2D.OverlapBox(_targetPos, hitSize, 0, _obstacleMask);
+        if (!hit)
+        {
+            StartCoroutine(SmoothMove());
         }
     }
 
