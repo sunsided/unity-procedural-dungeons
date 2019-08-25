@@ -30,11 +30,11 @@ public class TileSpawner : MonoBehaviour
         // Starting at the spawner's position, check whether there's a covered tile
         // on each of the four sides. If there isn't any, place a wall.
         var pos = transform.position;
-        for (var xIndex = -1; xIndex <= 1; ++xIndex)
+        for (var x = -1; x <= 1; ++x)
         {
-            for (var yIndex = -1; yIndex <= 1; ++yIndex)
+            for (var y = -1; y <= 1; ++y)
             {
-                var targetPos = new Vector2(pos.x + xIndex, pos.y + yIndex);
+                var targetPos = new Vector2(pos.x + x, pos.y + y);
                 var hit = Physics2D.OverlapBox(targetPos, hitSize, 0, envMask);
                 if (hit) continue;
 

@@ -173,6 +173,12 @@ MonoBehaviour:
     type: 3}
   exitPrefab: {fileID: 191300661906355976, guid: 1c4ee5d477c7057bca1c84bcef14c9d1,
     type: 3}
+  randomItems:
+  - {fileID: 803942442477431842, guid: 881e2d78eca95ec58a93bf7b9fc704ac, type: 3}
+  - {fileID: 8375119382021737765, guid: d4f6addf14d5151a3a985a03a08f2624, type: 3}
+  - {fileID: 7963301040627391820, guid: 16e30999d97400d89af20f458cf5b041, type: 3}
+  - {fileID: 481483911927382665, guid: a6b98ae915011899ca005f9faf492160, type: 3}
+  - {fileID: 5856893494495828445, guid: 5d5519bfdff2665e2a0699f53ee9e625, type: 3}
   minX: 0
   maxX: 0
   minY: 0
