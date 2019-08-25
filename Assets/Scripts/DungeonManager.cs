@@ -13,12 +13,16 @@ public class DungeonManager : MonoBehaviour
     [Range(0, 100)]
     public int itemSpawnProbability = 5;
 
+    [Range(0, 100)]
+    public int enemySpawnProbability = 5;
+
     public GameObject floorPrefab;
     public GameObject wallPrefab;
     public GameObject tilePrefab;
     public GameObject exitPrefab;
 
     public GameObject[] randomItems;
+    public GameObject[] randomEnemies;
 
     [HideInInspector]
     public float minX;
@@ -120,23 +124,20 @@ public class DungeonManager : MonoBehaviour
                 // areas surrounding a floor tile (i.e., walls and other open floors) will be triggering
                 // collisions as well.
                 var hitFloor = Physics2D.OverlapBox(new Vector2(x, y), hitSize, 0, _floorMask);
-                if (hitFloor)
-                {
-                    var hitFloorTransformPos = hitFloor.transform.position;
+                if (!hitFloor) continue;
 
-                    // Ensure we're not placing something onto the exit door.
-                    // ReSharper disable once PossibleInvalidOperationException
-                    var positionIsExitDoor = Vector2.Equals(hitFloorTransformPos, _doorPos.Value);
-                    if (!positionIsExitDoor)
-                    {
-                        var hitTop = Physics2D.OverlapBox(new Vector2(x, y + 1), hitSize, 0, _wallMask);
-                        var hitRight = Physics2D.OverlapBox(new Vector2(x + 1, y), hitSize, 0, _wallMask);
-                        var hitBottom = Physics2D.OverlapBox(new Vector2(x, y - 1), hitSize, 0, _wallMask);
-                        var hitLeft = Physics2D.OverlapBox(new Vector2(x - 1, y), hitSize, 0, _wallMask);
+                // Ensure we're not placing something onto the exit door.
+                // ReSharper disable once PossibleInvalidOperationException
+                var positionIsExitDoor = Vector2.Equals(hitFloor.transform.position, _doorPos.Value);
+                if (positionIsExitDoor) continue;
 
-                        CreateRandomItem(hitFloor, hitTop, hitRight, hitBottom, hitLeft);
-                    }
-                }
+                var hitTop = Physics2D.OverlapBox(new Vector2(x, y + 1), hitSize, 0, _wallMask);
+                var hitRight = Physics2D.OverlapBox(new Vector2(x + 1, y), hitSize, 0, _wallMask);
+                var hitBottom = Physics2D.OverlapBox(new Vector2(x, y - 1), hitSize, 0, _wallMask);
+                var hitLeft = Physics2D.OverlapBox(new Vector2(x - 1, y), hitSize, 0, _wallMask);
+
+                CreateRandomItem(hitFloor, hitTop, hitRight, hitBottom, hitLeft);
+                CreateRandomEnemy(hitFloor, hitTop, hitRight, hitBottom, hitLeft);
             }
         }
     }
@@ -160,5 +161,23 @@ public class DungeonManager : MonoBehaviour
         var floorTransform = hitFloor.transform;
         var goItem = Instantiate(itemPrefab, floorTransform.position, Quaternion.identity, floorTransform);
         goItem.name = itemPrefab.name;
+    }
+
+    private void CreateRandomEnemy([NotNull] Collider2D hitFloor,
+        [NotNull] Collider2D hitTop, [NotNull] Collider2D hitRight, [NotNull] Collider2D hitBottom,
+        [NotNull] Collider2D hitLeft)
+    {
+        var hasSurroundingWall = hitTop || hitRight || hitBottom || hitLeft;
+        if (hasSurroundingWall) return;
+
+        var roll = Random.Range(1, 101);
+        if (roll > enemySpawnProbability) return;
+
+        var enemyIndex = Random.Range(0, randomEnemies.Length);
+        var enemyPrefab = randomEnemies[enemyIndex];
+
+        var floorTransform = hitFloor.transform;
+        var goEnemy = Instantiate(enemyPrefab, floorTransform.position, Quaternion.identity, floorTransform);
+        goEnemy.name = enemyPrefab.name;
     }
 }

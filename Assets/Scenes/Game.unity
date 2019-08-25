@@ -166,6 +166,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   totalFloorCount: 500
   itemSpawnProbability: 10
+  enemySpawnProbability: 10
   floorPrefab: {fileID: 4514925030624558333, guid: f4b491aa8eeeb41f4b1f181895829bf1,
     type: 3}
   wallPrefab: {fileID: 355985668678716677, guid: bcca8e81274ebdb05b3993b94cbbde5c,
@@ -180,6 +181,11 @@ MonoBehaviour:
   - {fileID: 7963301040627391820, guid: 16e30999d97400d89af20f458cf5b041, type: 3}
   - {fileID: 481483911927382665, guid: a6b98ae915011899ca005f9faf492160, type: 3}
   - {fileID: 5856893494495828445, guid: 5d5519bfdff2665e2a0699f53ee9e625, type: 3}
+  randomEnemies:
+  - {fileID: 518722715976971678, guid: f5246b8014d4c450299ed8ee763521d6, type: 3}
+  - {fileID: 7389784770100088109, guid: 2cbd4124376e864beb8b0e82dda342f2, type: 3}
+  - {fileID: 2193353400922159813, guid: ccbfdb11433de8c14a339fb58a4ddd2e, type: 3}
+  - {fileID: 853295437519236526, guid: c63c4cbc30b72b0b696901287471a36b, type: 3}
   minX: 0
   maxX: 0
   minY: 0
