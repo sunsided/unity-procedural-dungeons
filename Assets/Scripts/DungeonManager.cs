@@ -40,12 +40,17 @@ public class DungeonManager : MonoBehaviour
     public float maxY;
 
     [NotNull]
+    private static readonly Vector3[] Directions = { Vector3.up, Vector3.right, Vector3.down, Vector3.left };
+
+    [NotNull]
     private readonly List<Vector3> _floorList = new List<Vector3>();
 
     private readonly Vector2 _hitSize = Vector2.one * 0.8f;
     private LayerMask _floorMask;
     private LayerMask _wallMask;
     private Vector3? _doorPos;
+
+    private static Vector3 RandomDirection() => Directions[Random.Range(0, Directions.Length)];
 
     private void Start()
     {
@@ -66,16 +71,13 @@ public class DungeonManager : MonoBehaviour
 
     private void RandomWalker()
     {
-        // The directions the random walk can move to.
-        var directions = new[] { Vector3.up, Vector3.right, Vector3.down, Vector3.left };
-
         // Starting point of the PLAYER (... is also the random walker)
         var curPos = Vector3.zero;
 
         _floorList.Add(curPos);
         while (_floorList.Count < totalFloorCount)
         {
-            curPos += directions[Random.Range(0, directions.Length)];
+            curPos += RandomDirection();
 
             // TODO: Should we use a hashset?
             if (_floorList.Contains(curPos)) continue;
