@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4233587248834290685}
   - component: {fileID: 3105514753902210855}
   - component: {fileID: 4045850053231970306}
+  - component: {fileID: 8979133830953361981}
   m_Layer: 9
   m_Name: Minotaur
   m_TagString: Untagged
@@ -109,3 +110,17 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.8, y: 0.8}
   m_EdgeRadius: 0
+--- !u!114 &8979133830953361981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 853295437519236526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0b6ef16526d1b1a495eea7653bc65cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patrolInterval: {x: 1, y: 2}
+  moveSpeed: 5
