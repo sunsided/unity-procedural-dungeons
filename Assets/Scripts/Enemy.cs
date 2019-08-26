@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -12,6 +13,14 @@ public class Enemy : MonoBehaviour
     private Vector2 _targetPos;
     private LayerMask _obstacleMask;
     private bool _isMoving;
+    private bool _flipX;
+    private SpriteRenderer _renderer;
+
+    private void Awake()
+    {
+        _renderer = GetComponent<SpriteRenderer>();
+        _flipX = _renderer.flipX;
+    }
 
     private void Start()
     {
@@ -44,7 +53,17 @@ public class Enemy : MonoBehaviour
         if (_availableMovements.Count > 0)
         {
             var index = Random.Range(0, _availableMovements.Count);
-            _targetPos += _availableMovements[index];
+            var movement = _availableMovements[index];
+            _targetPos += movement;
+
+            if (movement == Vector2.right)
+            {
+                _renderer.flipX = _flipX;
+            }
+            else if (movement == Vector2.left)
+            {
+                _renderer.flipX = !_flipX;
+            }
         }
 
         StartCoroutine(SmoothMove());
