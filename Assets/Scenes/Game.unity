@@ -168,6 +168,7 @@ MonoBehaviour:
   itemSpawnProbability: 10
   enemySpawnProbability: 10
   roundedEdges: 1
+  dungeonType: 1
   floorPrefab: {fileID: 4514925030624558333, guid: f4b491aa8eeeb41f4b1f181895829bf1,
     type: 3}
   wallPrefab: {fileID: 355985668678716677, guid: bcca8e81274ebdb05b3993b94cbbde5c,

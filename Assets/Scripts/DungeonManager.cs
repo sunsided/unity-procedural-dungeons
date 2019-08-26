@@ -18,6 +18,8 @@ public class DungeonManager : MonoBehaviour
 
     public bool roundedEdges;
 
+    public DungeonType dungeonType;
+
     public GameObject floorPrefab;
     public GameObject wallPrefab;
     public GameObject tilePrefab;
@@ -57,7 +59,14 @@ public class DungeonManager : MonoBehaviour
         _floorMask = LayerMask.GetMask("Floor");
         _wallMask = LayerMask.GetMask("Wall");
 
-        RandomWalker();
+        switch (dungeonType)
+        {
+            case DungeonType.Caverns: RandomWalker(); break;
+            case DungeonType.Rooms: RoomWalker(); break;
+        }
+
+        // Wait for the awakes and starts to be called.
+        StartCoroutine(DelayProgress());
     }
 
     private void Update()
@@ -73,8 +82,8 @@ public class DungeonManager : MonoBehaviour
     {
         // Starting point of the PLAYER (... is also the random walker)
         var curPos = Vector3.zero;
-
         _floorList.Add(curPos);
+
         while (_floorList.Count < totalFloorCount)
         {
             curPos += RandomDirection();
@@ -83,19 +92,42 @@ public class DungeonManager : MonoBehaviour
             if (_floorList.Contains(curPos)) continue;
             _floorList.Add(curPos);
         }
+    }
 
+    private void RoomWalker()
+    {
+        // Starting point of the PLAYER (... is also the random walker)
+        var curPos = Vector3.zero;
+        _floorList.Add(curPos);
+
+        while (_floorList.Count < totalFloorCount)
+        {
+            var walkDirection = RandomDirection();
+
+            // We want to create 3x3 up to 9x9 rooms later on.
+            var walkLength = Random.Range(9, 18);
+            for (var i = 0; i < walkLength; ++i)
+            {
+                curPos += walkDirection;
+
+                // TODO: Should we use a hashset?
+                if (_floorList.Contains(curPos)) continue;
+                _floorList.Add(curPos);
+            }
+
+            // TODO: Create a random room at end of walk
+        }
+    }
+
+    private IEnumerator DelayProgress()
+    {
+        // Instantiate tiles.
         for (var i = 0; i < _floorList.Count; ++i)
         {
             var goTile = Instantiate(tilePrefab, _floorList[i], Quaternion.identity, transform);
             goTile.name = tilePrefab.name;
         }
 
-        // Wait for the awakes and starts to be called.
-        StartCoroutine(DelayProgress());
-    }
-
-    private IEnumerator DelayProgress()
-    {
         // Wait for all tile spawners to be created before continuing to place level elements.
         while (FindObjectsOfType<TileSpawner>().Length > 0)
         {
