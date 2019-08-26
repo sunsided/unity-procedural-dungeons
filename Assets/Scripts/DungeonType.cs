@@ -1,5 +1,6 @@
 public enum DungeonType
 {
     Caverns,
-    Rooms
+    Rooms,
+    Winding
 };

@@ -16,6 +16,9 @@ public class DungeonManager : MonoBehaviour
     [Range(0, 100)]
     public int enemySpawnProbability = 5;
 
+    [Range(0, 100)]
+    public int windingHallProbability = 20;
+
     public bool roundedEdges;
 
     public DungeonType dungeonType;
@@ -63,6 +66,7 @@ public class DungeonManager : MonoBehaviour
         {
             case DungeonType.Caverns: RandomWalker(); break;
             case DungeonType.Rooms: RoomWalker(); break;
+            case DungeonType.Winding: WindingWalker(); break;
         }
 
         // Wait for the awakes and starts to be called.
@@ -102,36 +106,59 @@ public class DungeonManager : MonoBehaviour
 
         while (_floorList.Count < totalFloorCount)
         {
-            var walkDirection = RandomDirection();
+            TakeLongWalk(ref curPos);
+            RandomRoom(curPos);
+        }
+    }
 
-            // We want to create 3x3 up to 9x9 rooms later on.
-            var walkLength = Random.Range(9, 18);
-            for (var i = 0; i < walkLength; ++i)
+    private void WindingWalker()
+    {
+        // Starting point of the PLAYER (... is also the random walker)
+        var curPos = Vector3.zero;
+        _floorList.Add(curPos);
+
+        while (_floorList.Count < totalFloorCount)
+        {
+            TakeLongWalk(ref curPos);
+
+            var roll = Random.Range(0, 100);
+            if (roll > windingHallProbability) RandomRoom(curPos);
+        }
+    }
+
+    private void RandomRoom(Vector3 position)
+    {
+        // Randomly select a half-width of a room; e.g.,
+        // a value of 4 implies a 2x4+1=9 cell wide room.
+        var width = Random.Range(1, 5);
+        var height = Random.Range(1, 5);
+        for (var w = -width; w <= width; ++w)
+        {
+            for (var h = -height; h <= height; ++h)
             {
-                curPos += walkDirection;
+                var offset = new Vector3(w, h);
+                var candidateTile = position + offset;
 
                 // TODO: Should we use a hashset?
-                if (_floorList.Contains(curPos)) continue;
-                _floorList.Add(curPos);
+                if (_floorList.Contains(candidateTile)) continue;
+                _floorList.Add(candidateTile);
             }
+        }
+    }
 
-            // Create a random room at end of walk.
-            // Randomly select a half-width of a room; e.g.,
-            // a value of 4 implies a 2x4+1=9 cell wide room.
-            var width = Random.Range(1, 5);
-            var height = Random.Range(1, 5);
-            for (var w = -width; w <= width; ++w)
-            {
-                for (var h = -height; h <= height; ++h)
-                {
-                    var offset = new Vector3(w, h);
-                    var candidateTile = curPos + offset;
+    private void TakeLongWalk(ref Vector3 curPos)
+    {
+        var walkDirection = RandomDirection();
 
-                    // TODO: Should we use a hashset?
-                    if (_floorList.Contains(candidateTile)) continue;
-                    _floorList.Add(candidateTile);
-                }
-            }
+        // We want to create 3x3 up to 9x9 rooms later on.
+        var walkLength = Random.Range(9, 18);
+        for (var i = 0; i < walkLength; ++i)
+        {
+            curPos += walkDirection;
+
+            // TODO: Should we use a hashset?
+            if (_floorList.Contains(curPos)) continue;
+            _floorList.Add(curPos);
         }
     }
 
