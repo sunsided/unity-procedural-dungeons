@@ -13,6 +13,7 @@ Features implemented:
   - Plain random walks ("caverns" mode),
   - Constrained random walks and
   - Random rooms generation ("rooms" and "winding" mode),
+- Random item and enemy placement,
 - Enemy patrols using random walks and player chasing using A* pathfinding.
 
 A random level in the editor:
