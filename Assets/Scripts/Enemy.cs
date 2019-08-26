@@ -11,6 +11,7 @@ public class Enemy : MonoBehaviour
     public float moveSpeed = 5;
     public float chaseDelay = 0.5f;
     public float alertRange = 10f;
+    public float chaseRange = 20f;
 
     private readonly List<Vector2> _availableMovements = new List<Vector2>(4);
     private Player _player;
@@ -21,7 +22,6 @@ public class Enemy : MonoBehaviour
     private bool _flipX;
     private AlertState _state;
     private SpriteRenderer _renderer;
-    private readonly List<Node> _nodes = new List<Node>();
 
     private void Awake()
     {
@@ -73,9 +73,17 @@ public class Enemy : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
             if (_isMoving) continue;
 
+            // TODO: The whole movement logic is a bit off.
+            //       This may be improved with the following behavior:
+            //       If the player is in attack range, attack.
+            //       If the player is in alert range, move to the player's position ("chase").
+            //       If the player is lost during a chase ("irritated"), move to the player's last known position instead.
+
             // Sense the player.
             var distToPlayer = Vector2.Distance(transform.position, _player.transform.position);
-            if (distToPlayer > alertRange)
+            var inAlertRange = distToPlayer <= alertRange;
+            var inChaseRange = _state == AlertState.Chasing && distToPlayer <= chaseRange;
+            if (!inAlertRange && !inChaseRange)
             {
                 if (_state != AlertState.Patrolling)
                 {
@@ -136,54 +144,94 @@ public class Enemy : MonoBehaviour
 
     private Vector2 FindNextStep(Vector2 startPos, Vector2 targetPos)
     {
-        _nodes.Clear();
-        _nodes.Add(new Node(startPos, startPos));
+        const int failsafe = 1000;
+        var openList = new List<Node>();
 
-        // Use a flood filling approach to find a path to the player.
-        const int maxTries = 1000;
-        var index = 0;
-        var myPos = startPos;
-        while (myPos != targetPos && index < maxTries && _nodes.Count > 0)
+        var distanceFromStart = 0;
+        var heuristicToTarget = DistanceHeuristic(startPos, targetPos);
+        var current = new Node(startPos, null, distanceFromStart, heuristicToTarget);
+
+        openList.Add(current);
+        while (openList.Count > 0 && openList.Count < failsafe)
         {
-            AddNodeIfWalkable(startPos, myPos + Vector2.up, myPos);
-            AddNodeIfWalkable(startPos, myPos + Vector2.right, myPos);
-            AddNodeIfWalkable(startPos, myPos + Vector2.down, myPos);
-            AddNodeIfWalkable(startPos, myPos + Vector2.left, myPos);
+            // Find the item with the smallest F-score, remove it from the
+            // open list and add it to the closed list.
+            var smallestIndex = FindIndexWithSmallestFScore(openList);
+            current = openList[smallestIndex];
+            openList.RemoveAt(smallestIndex);
 
-            ++index;
-            if (index < _nodes.Count)
+            // Check if we have a match.
+            if (current.Position == targetPos) break;
+
+            // Add walkable tiles to explore list
+            AddNodeIfWalkable(current, openList, Vector2.up, targetPos);
+            AddNodeIfWalkable(current, openList, Vector2.right, targetPos);
+            AddNodeIfWalkable(current, openList, Vector2.down, targetPos);
+            AddNodeIfWalkable(current, openList, Vector2.left, targetPos);
+        }
+
+        // In case we didn't find anything, abort.
+        if (current.Position != targetPos) return startPos;
+
+        // Otherwise, backtrack to the start.
+        var nextPosition = startPos;
+        while (current.Parent != null)
+        {
+            nextPosition = current.Position;
+            current = current.Parent;
+        }
+
+        return nextPosition;
+
+        int FindIndexWithSmallestFScore<T>(T nodes) where T: IReadOnlyList<Node>
+        {
+            var smallestScore = float.PositiveInfinity;
+            var smallestIndex = -1;
+            for (var i = 0; i < nodes.Count; ++i)
             {
-                myPos = _nodes[index].Position;
+                var node = nodes[i];
+                if (node.Score >= smallestScore) continue;
+                smallestScore = node.Score;
+                smallestIndex = i;
+            }
+
+            return smallestIndex;
+        }
+    }
+
+    private static float DistanceHeuristic(Vector2 startPos, Vector2 targetPos)
+    {
+        var distance = startPos - targetPos;
+        return Mathf.Abs(distance.x) + Mathf.Abs(distance.y);
+    }
+
+    private void AddNodeIfWalkable<T>([NotNull] Node current, [NotNull] T openList, Vector2 direction, Vector2 target)
+        where T : IList<Node>
+    {
+        var hitSize = Vector2.one * 0.5f;
+        var point = current.Position + direction;
+        var hit = Physics2D.OverlapBox(point, hitSize, 0, _walkableMask);
+        if (hit) return;
+
+        var distanceFromStart = current.DistanceFromStart + 1;
+        var heuristicToTarget = DistanceHeuristic(point, target);
+        var next = new Node(point, current, distanceFromStart, heuristicToTarget);
+
+        // If the position already exists in the list, but has a higher F-Score - replace it.
+        var foundNode = false;
+        for (var i = 0; i < openList.Count; ++i)
+        {
+            var node = openList[i];
+            foundNode = node.Position == point;
+            if (foundNode && node.Score > next.Score)
+            {
+                openList[i] = next;
+                return;
             }
         }
 
-        // If we didn't find the player, do nothing.
-        if (myPos != targetPos) return startPos;
-        Debug.Log($"{name} has sensed the player.");
-
-        // Backtrack the path from where we connected to the player.
-        for (var i = _nodes.Count - 1; i >= 0; --i)
-        {
-            var node = _nodes[i];
-            if (myPos != node.Position) continue;
-            if (node.Parent == startPos) return myPos;
-            myPos = node.Parent;
-        }
-
-        // Shouldn't happen.
-        return startPos;
-    }
-
-    private void AddNodeIfWalkable(Vector2 startPos, Vector2 point, Vector2 parent)
-    {
-        // Never try to explore outside the alert range.
-        // If the player would be there, we couldn't have seen him to begin with.
-        if (Vector2.Distance(startPos, point) > alertRange + 1f) return;
-
-        var hitSize = Vector2.one * 0.5f;
-        var hit = Physics2D.OverlapBox(point, hitSize, 0, _walkableMask);
-        if (hit) return;
-        _nodes.Add(new Node(point, parent));
+        // Otherwise, if the node doesn't exist, add it.
+        if (!foundNode) openList.Add(next);
     }
 
     private void UpdateState([NotNull] string message, AlertState newState)
