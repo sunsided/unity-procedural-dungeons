@@ -115,7 +115,23 @@ public class DungeonManager : MonoBehaviour
                 _floorList.Add(curPos);
             }
 
-            // TODO: Create a random room at end of walk
+            // Create a random room at end of walk.
+            // Randomly select a half-width of a room; e.g.,
+            // a value of 4 implies a 2x4+1=9 cell wide room.
+            var width = Random.Range(1, 5);
+            var height = Random.Range(1, 5);
+            for (var w = -width; w <= width; ++w)
+            {
+                for (var h = -height; h <= height; ++h)
+                {
+                    var offset = new Vector3(w, h);
+                    var candidateTile = curPos + offset;
+
+                    // TODO: Should we use a hashset?
+                    if (_floorList.Contains(candidateTile)) continue;
+                    _floorList.Add(candidateTile);
+                }
+            }
         }
     }
 
