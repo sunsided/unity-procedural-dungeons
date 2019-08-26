@@ -11,7 +11,6 @@ public class Enemy : MonoBehaviour
     public float moveSpeed = 5;
     public float chaseDelay = 0.5f;
     public float alertRange = 10f;
-    public float chaseRange = 20f;
 
     private readonly List<Vector2> _availableMovements = new List<Vector2>(4);
     private Player _player;
@@ -81,9 +80,7 @@ public class Enemy : MonoBehaviour
 
             // Sense the player.
             var distToPlayer = Vector2.Distance(transform.position, _player.transform.position);
-            var inAlertRange = distToPlayer <= alertRange;
-            var inChaseRange = _state == AlertState.Chasing && distToPlayer <= chaseRange;
-            if (!inAlertRange && !inChaseRange)
+            if (distToPlayer > alertRange)
             {
                 if (_state != AlertState.Patrolling)
                 {
@@ -126,6 +123,8 @@ public class Enemy : MonoBehaviour
                 Patrol();
             }
         }
+
+        // ReSharper disable once IteratorNeverReturns
     }
 
     private void Attack()

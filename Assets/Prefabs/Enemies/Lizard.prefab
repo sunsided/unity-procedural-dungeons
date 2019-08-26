@@ -48,8 +48,10 @@ MonoBehaviour:
   patrolInterval: {x: 1, y: 2}
   damageRange: {x: 1, y: 2}
   moveSpeed: 5
-  chaseDelay: 0.5
-  alertRange: 5
+  chaseDelay: 0.3
+  alertRange: 10
+  chaseRange: 20
+  chaseDuration: 2
 --- !u!212 &1549789975068999586
 SpriteRenderer:
   m_ObjectHideFlags: 0
