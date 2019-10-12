@@ -14,7 +14,7 @@ Features implemented:
   - Constrained random walks and
   - Random rooms generation ("rooms" and "winding" mode),
 - Random item and enemy placement,
-- Enemy patrols using random walks and player chasing using A* pathfinding.
+- Enemy patrols using random walks and player chasing using simplified A* pathfinding.
 
 This project uses David Gervais' graphics tileset from the [Angband](https://rephial.org/) game released under a CC BY 3.0 license (the graphics, not the game; see [here](https://angband.readthedocs.io/en/latest/copying.html)).
 
